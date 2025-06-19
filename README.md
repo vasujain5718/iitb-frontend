@@ -1,6 +1,4 @@
-Here is a fully corrected and polished version of your README.md, with improved formatting, consistent headers, fixed code blocks, and clearer navigation links:
 
-```markdown
 # Digital Nexus - Premium Web Solutions
 
 <div align="center">
