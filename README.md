@@ -167,6 +167,3 @@ Built with ❤️ using modern web technologies and AI assistance
 **Digital Nexus – Where Innovation Meets Excellence**
 
 </div>
-```
-
-Let me know if you'd like further customization or want this as a downloadable file!
