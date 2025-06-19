@@ -79,13 +79,13 @@ Getting this project up and running is simple - no build tools or dependencies r
 
 1. **Clone the repository**
    ```sh
-   git clone https://github.com/your_username/digital-nexus.git
+   git clone https://github.com/vasujain5718/iitb-frontend.git
 Navigate to the project directory
 
 sh
 Download
 Copy code
-cd digital-nexus
+cd iitb-frontend
 Open in your browser
 
 sh
@@ -147,6 +147,7 @@ Back to top
 
 Contact
 Project Link: https://github.com/vasujain5718/iitb-frontend
+
 Live Demo: https://iitb-frontend-eosin.vercel.app/
 
 For questions, suggestions, or collaboration opportunities, feel free to reach out!
