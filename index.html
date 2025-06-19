@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Nexus - Premium Web Solutions</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+
+// All functionality in one DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function() {
+    // Helper functions
+    function getCSSVariable(variable) {
+        return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+    }
+    //loader
+    const loader = document.getElementById('loader');
+    const progressFill = document.querySelector('.progress-fill');
+    const progressPercentage = document.querySelector('.progress-percentage');
+    
+    let progress = 0;
+    const duration = 3500; // 3.5 seconds
+    const interval = 50; // Update every 50ms
+    const increment = (100 / (duration / interval));
+    
+    const progressTimer = setInterval(() => {
+        progress += increment;
+        
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(progressTimer);
+            
+            // Hide loader after reaching 100%
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 800); // Match CSS transition duration
+            }, 200); // Small delay after reaching 100%
+        }
+        
+        // Update progress bar and percentage
+        progressFill.style.width = progress + '%';
+        progressPercentage.textContent = Math.floor(progress) + '%';
+    }, interval);
+    function hexToRGB(hex, alpha = 1) {
+        hex = hex.replace('#', '');
+        if (hex.length === 3) {
+            hex = hex.split('').map(c => c + c).join('');
+        }
+        const bigint = parseInt(hex, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+ 
+
+    
+    // Testimonial Slider Logic
+    const testimonialSlides = document.querySelectorAll('.testimonial-slide');
+    const prevTestimonialBtn = document.querySelector('.prev-testimonial');
+    const nextTestimonialBtn = document.querySelector('.next-testimonial');
+    const testimonialDots = document.querySelectorAll('.testimonial-dots .dot');
+    let currentTestimonialIndex = 0;
+    const totalTestimonials = testimonialSlides.length;
+
+    function showTestimonial(index) {
+        testimonialSlides.forEach((slide, i) => {
+            slide.classList.remove('active', 'prev');
+            if (i === index) {
+                slide.classList.add('active');
+            } else if (i < index) {
+                slide.classList.add('prev');
+            }
+        });
+        
+        testimonialDots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+    }
+
+    function nextTestimonial() {
+        currentTestimonialIndex = (currentTestimonialIndex + 1) % totalTestimonials;
+        showTestimonial(currentTestimonialIndex);
+    }
+
+    function prevTestimonial() {
+        currentTestimonialIndex = (currentTestimonialIndex - 1 + totalTestimonials) % totalTestimonials;
+        showTestimonial(currentTestimonialIndex);
+    }
+
+    // Event listeners
+    if (nextTestimonialBtn && prevTestimonialBtn) {
+        nextTestimonialBtn.addEventListener('click', nextTestimonial);
+        prevTestimonialBtn.addEventListener('click', prevTestimonial);
+    }
+
+    // Dots navigation
+    testimonialDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            currentTestimonialIndex = index;
+            showTestimonial(currentTestimonialIndex);
+        });
+    });
+
+    // Auto-rotate testimonials every 6 seconds
+    setInterval(nextTestimonial, 6000);
+
+    // Initialize first testimonial
+    showTestimonial(currentTestimonialIndex);
+
+    
+    // Theme toggle logic
+   const themeSwitch = document.getElementById('theme-switch');
+    const html = document.documentElement;
+
+    // Set dark theme as default
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    html.setAttribute('data-theme', savedTheme);
+    
+    if (themeSwitch) {
+        themeSwitch.checked = savedTheme === 'dark';
+        
+        themeSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                html.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+            
+            // Update chart colors if chart exists
+            if (typeof updateChartColors === 'function') {
+                setTimeout(updateChartColors, 100);
+            }
+        });
+    }
+    
+    // Set default theme in localStorage if not set
+    if (!localStorage.getItem('theme')) {
+        localStorage.setItem('theme', 'dark');
+    }
+
+    // Chart initialization
+    const ctx = document.getElementById('performanceChart');
+    if (ctx) {
+        window.performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                datasets: [{
+                    label: 'Project Completion Rate (%)',
+                    data: [65, 59, 80, 81, 75, 85, 90, 92],
+                    borderColor: getCSSVariable('--primary-color'),
+                    backgroundColor: hexToRGB(getCSSVariable('--primary-color'), 0.2),
+                    tension: 0.3,
+                    fill: true,
+                    borderWidth: 3,
+                    pointBackgroundColor: getCSSVariable('--primary-color'),
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }, {
+                    label: 'Client Satisfaction Score',
+                    data: [70, 72, 78, 85, 82, 88, 92, 95],
+                    borderColor: getCSSVariable('--accent-color'),
+                    backgroundColor: hexToRGB(getCSSVariable('--accent-color'), 0.2),
+                    tension: 0.3,
+                    fill: true,
+                    borderWidth: 3,
+                    pointBackgroundColor: getCSSVariable('--accent-color'),
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: getCSSVariable('--text-secondary'),
+                            callback: function(value) { return value + '%'; }
+                        },
+                        grid: { color: getCSSVariable('--border-color') }
+                    },
+                    x: {
+                        ticks: { color: getCSSVariable('--text-secondary') },
+                        grid: { color: getCSSVariable('--border-color') }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: getCSSVariable('--text-primary') }
+                    },
+                    tooltip: {
+                        backgroundColor: getCSSVariable('--bg-card'),
+                        titleColor: getCSSVariable('--text-primary'),
+                        bodyColor: getCSSVariable('--text-secondary'),
+                        borderColor: getCSSVariable('--border-color'),
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+    }
+
+    // Chart color update function
+    function updateChartColors() {
+        if (!window.performanceChart) return;
+        
+        window.performanceChart.data.datasets[0].borderColor = getCSSVariable('--primary-color');
+        window.performanceChart.data.datasets[0].backgroundColor = hexToRGB(getCSSVariable('--primary-color'), 0.2);
+        window.performanceChart.data.datasets[0].pointBackgroundColor = getCSSVariable('--primary-color');
+        
+        window.performanceChart.data.datasets[1].borderColor = getCSSVariable('--accent-color');
+        window.performanceChart.data.datasets[1].backgroundColor = hexToRGB(getCSSVariable('--accent-color'), 0.2);
+        window.performanceChart.data.datasets[1].pointBackgroundColor = getCSSVariable('--accent-color');
+
+        window.performanceChart.options.scales.x.ticks.color = getCSSVariable('--text-secondary');
+        window.performanceChart.options.scales.x.grid.color = getCSSVariable('--border-color');
+        window.performanceChart.options.scales.y.ticks.color = getCSSVariable('--text-secondary');
+        window.performanceChart.options.scales.y.grid.color = getCSSVariable('--border-color');
+        window.performanceChart.options.plugins.legend.labels.color = getCSSVariable('--text-primary');
+
+        window.performanceChart.update('none');
+    }
+
+    // Theme toggle event listener
+    if (themeSwitch) {
+        themeSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                html.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+            setTimeout(updateChartColors, 100);
+        });
+    }
+
+    // Carousel logic
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    const indicators = document.querySelectorAll('.indicator');
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
+        });
+        indicators.forEach((ind, i) => {
+            ind.classList.toggle('active', i === index);
+        });
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        showSlide(currentIndex);
+    }
+
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        showSlide(currentIndex);
+    }
+
+    if (nextBtn && prevBtn) {
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+    }
+
+    indicators.forEach((ind, i) => {
+        ind.addEventListener('click', () => {
+            currentIndex = i;
+            showSlide(currentIndex);
+        });
+    });
+
+    // Auto-slide every 5 seconds
+    setInterval(nextSlide, 5000);
+    showSlide(currentIndex);
+
+    // Stats counter animation
+    const statNumbers = document.querySelectorAll('.stat-number');
+    
+    function animateStats() {
+        statNumbers.forEach(stat => {
+            const target = parseInt(stat.getAttribute('data-target'));
+            const increment = target / 100;
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                stat.textContent = Math.floor(current);
+            }, 20);
+        });
+    }
+
+    // Trigger stats animation when visible
+    const statsSection = document.getElementById('stats');
+    if (statsSection) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateStats();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        observer.observe(statsSection);
+    }
+
+    // Enhanced Parallax effect
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const rate = scrolled * -0.5;
+        const rateStats = scrolled * -0.3;
+        
+        const heroParallax = document.querySelector('.hero .parallax-bg');
+        if (heroParallax) {
+            heroParallax.style.transform = `translate3d(0, ${rate}px, 0)`;
+        }
+        
+        const statsParallax = document.querySelector('.stats .parallax-bg');
+        if (statsParallax) {
+            statsParallax.style.transform = `translate3d(0, ${rateStats}px, 0)`;
+        }
+        
+        const floatingElements = document.querySelectorAll('.floating-element');
+        floatingElements.forEach((element, index) => {
+            const speed = 0.2 + (index * 0.1);
+            const yPos = -(scrolled * speed);
+            element.style.transform = `translateY(${yPos}px) rotate(${scrolled * 0.1}deg)`;
+        });
+    });
+
+    // Ripple effect
+    function createRipple(event) {
+    const button = event.currentTarget;
+    const circle = document.createElement('span');
+    const diameter = Math.max(button.clientWidth, button.clientHeight);
+    const radius = diameter / 2;
+
+    circle.style.width = circle.style.height = `${diameter}px`;
+    circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+    circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+    circle.classList.add('ripple');
+
+    // Remove any existing ripple
+    const ripple = button.getElementsByClassName('ripple')[0];
+    if (ripple) {
+        ripple.remove();
+    }
+
+    button.appendChild(circle);
+}
+
+// Attach ripple to all buttons/cards with the class
+const rippleButtons = document.querySelectorAll('.ripple-btn, .ripple-card');
+rippleButtons.forEach(button => {
+    button.addEventListener('click', createRipple);
+});
+});
+</script>
+</head>
+<body>
+    <!-- Loader (Mandatory) -->
+    <div id="loader" class="loader">
+    <div class="loader-content">
+        <div class="loader-logo">
+            <h2>Digital<span>Nexus</span></h2>
+        </div>
+        <div class="loader-text">
+            <h3>Loading Excellence...</h3>
+            <p>Preparing your digital experience</p>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-percentage">0%</div>
+        </div>
+        <div class="loader-animation">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+</div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Digital<span>Nexus</span></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="#stats">Stats</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <!-- Dark/Light Theme Toggle (Mandatory) -->
+            <div class="theme-toggle">
+                <input type="checkbox" id="theme-switch">
+                <label for="theme-switch" class="theme-label">
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                    <div class="toggle-ball"></div>
+                </label>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Parallax -->
+    <section id="home" class="hero parallax-container">
+        <div class="parallax-bg"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Crafting Digital <span class="gradient-text">Excellence</span></h1>
+            <p class="hero-subtitle">We transform ideas into stunning digital experiences</p>
+            <button class="cta-button ripple-btn">
+                <span>Get Started</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        <div class="hero-animation">
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+        </div>
+    </section>
+
+    <!-- Services Cards -->
+    <section id="services" class="services">
+        <div class="container">
+            <h2 class="section-title">Our Services</h2>
+            <div class="services-grid">
+                <div class="service-card ripple-card">
+                    <div class="card-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Web Development</h3>
+                    <p>Custom websites built with cutting-edge technologies and modern frameworks.</p>
+                    <button class="card-btn ripple-btn">Learn More</button>
+                </div>
+                <div class="service-card ripple-card">
+                    <div class="card-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Apps</h3>
+                    <p>Native and cross-platform mobile applications for iOS and Android.</p>
+                    <button class="card-btn ripple-btn">Learn More</button>
+                </div>
+                <div class="service-card ripple-card">
+                    <div class="card-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>UI/UX Design</h3>
+                    <p>Beautiful, intuitive designs that enhance user experience and engagement.</p>
+                    <button class="card-btn ripple-btn">Learn More</button>
+                </div>
+                <div class="service-card ripple-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Digital Marketing</h3>
+                    <p>Strategic marketing solutions to boost your online presence and growth.</p>
+                    <button class="card-btn ripple-btn">Learn More</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Carousel -->
+    <section id="portfolio" class="portfolio">
+        <div class="container">
+            <h2 class="section-title">Our Portfolio</h2>
+            <div class="carousel-container">
+                <div class="carousel">
+                    <div class="carousel-slide active">
+                        <div class="slide-content">
+                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop" alt="E-commerce Platform">
+                            <div class="slide-info">
+                                <h3>E-commerce Platform</h3>
+                                <p>Modern online shopping experience with advanced features</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="slide-content">
+                            <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=600&fit=crop" alt="Mobile Banking App">
+                            <div class="slide-info">
+                                <h3>Mobile Banking App</h3>
+                                <p>Secure and intuitive financial management solution</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="slide-content">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop" alt="Analytics Dashboard">
+                            <div class="slide-info">
+                                <h3>Analytics Dashboard</h3>
+                                <p>Real-time data visualization and business intelligence</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="slide-content">
+                            <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=600&fit=crop" alt="Social Media Platform">
+                            <div class="slide-info">
+                                <h3>Social Media Platform</h3>
+                                <p>Connecting people through innovative social features</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-btn prev-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="carousel-btn next-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <div class="carousel-indicators">
+                    <span class="indicator active"></span>
+                    <span class="indicator"></span>
+                    <span class="indicator"></span>
+                    <span class="indicator"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="stats parallax-container">
+        <div class="parallax-bg stats-bg"></div>
+        <div class="container">
+            <h2 class="section-title">Our Achievements</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="150">0</div>
+                    <div class="stat-label">Projects Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="98">0</div>
+                    <div class="stat-label">Client Satisfaction %</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="50">0</div>
+                    <div class="stat-label">Team Members</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="5">0</div>
+                    <div class="stat-label">Years Experience</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Graph Section -->
+    <section class="graph-section">
+        <div class="container">
+            <h2 class="section-title">Performance Analytics</h2>
+            <div class="graph-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Striking Animation Section -->
+    <section class="striking-section">
+        <div class="container">
+            <div class="striking-content">
+                <div class="striking-object">
+                    <div class="rotating-cube">
+                        <div class="cube-face front"></div>
+                        <div class="cube-face back"></div>
+                        <div class="cube-face right"></div>
+                        <div class="cube-face left"></div>
+                        <div class="cube-face top"></div>
+                        <div class="cube-face bottom"></div>
+                    </div>
+                </div>
+                <div class="striking-text">
+                    <h2>Innovation in Motion</h2>
+                    <p>We bring your ideas to life with cutting-edge technology and creative solutions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Testimony Section -->
+
+    <section class="testimonials">
+    <div class="container">
+        <h2 class="section-title">What Our Clients Say</h2>
+        <div class="testimonial-slider">
+            <div class="testimonial-container">
+                <div class="testimonial-slide active">
+                    <div class="testimonial-content">
+                        <div class="quote-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <p class="testimonial-text">"Digital Nexus transformed our online presence completely. Their attention to detail and innovative approach exceeded our expectations. The team delivered a stunning website that perfectly represents our brand."</p>
+                        <div class="testimonial-author">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="John Smith" class="author-image">
+                            <div class="author-info">
+                                <h4>John Smith</h4>
+                                <span>CEO, TechCorp Solutions</span>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-slide">
+                    <div class="testimonial-content">
+                        <div class="quote-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <p class="testimonial-text">"Working with Digital Nexus was an absolute pleasure. They understood our vision and brought it to life with exceptional creativity and technical expertise. Our conversion rates increased by 300%!"</p>
+                        <div class="testimonial-author">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face" alt="Sarah Johnson" class="author-image">
+                            <div class="author-info">
+                                <h4>Sarah Johnson</h4>
+                                <span>Marketing Director, InnovateLab</span>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-slide">
+                    <div class="testimonial-content">
+                        <div class="quote-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <p class="testimonial-text">"The mobile app they developed for us is simply outstanding. User-friendly, fast, and beautifully designed. Our customers love it and our business has grown significantly since launch."</p>
+                        <div class="testimonial-author">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="Michael Chen" class="author-image">
+                            <div class="author-info">
+                                <h4>Michael Chen</h4>
+                                <span>Founder, StartupHub</span>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-slide">
+                    <div class="testimonial-content">
+                        <div class="quote-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <p class="testimonial-text">"Digital Nexus doesn't just build websites, they craft digital experiences. Their strategic approach and cutting-edge solutions helped us dominate our market. Highly recommended!"</p>
+                        <div class="testimonial-author">
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" alt="Emily Rodriguez" class="author-image">
+                            <div class="author-info">
+                                <h4>Emily Rodriguez</h4>
+                                <span>VP of Operations, GrowthCo</span>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="testimonial-btn prev-testimonial">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="testimonial-btn next-testimonial">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <div class="testimonial-dots">
+                <span class="dot active" data-slide="0"></span>
+                <span class="dot" data-slide="1"></span>
+                <span class="dot" data-slide="2"></span>
+                <span class="dot" data-slide="3"></span>
+            </div>
+        </div>
+    </div>
+</section>
+    <!-- Contact Section -->
+<section id="contact" class="contact">
+    <div class="container">
+        <h2 class="section-title">Get In Touch</h2>
+        <div class="contact-content">
+            <div class="contact-info">
+                <h3>Let's Start a Conversation</h3>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>hello@digitalnexus.com</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>+1 (555) 123-4567</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>123 Innovation Street, Tech City</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Mon - Fri: 9:00 AM - 6:00 PM</span>
+                </div>
+            </div>
+            <form class="contact-form">
+                <h3>Send us a Message</h3>
+                <div class="form-group">
+                    <input type="text" placeholder="Your Full Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" placeholder="Your Email Address" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" placeholder="Subject" required>
+                </div>
+                <div class="form-group">
+                    <textarea placeholder="Your Message" rows="6" required></textarea>
+                </div>
+                <button type="submit" class="ripple-btn">
+                    <span>Send Message</span>
+                    <i class="fas fa-paper-plane" style="margin-left: 10px;"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Digital<span>Nexus</span></h3>
+                    <p>Crafting digital excellence since 2019</p>
+                </div>
+                <div class="footer-social">
+                    <a href="#" class="social-link ripple-btn"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="social-link ripple-btn"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link ripple-btn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-link ripple-btn"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Digital Nexus. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
